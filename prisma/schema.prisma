@@ -11,9 +11,10 @@ model User {
   id           String @id @default(uuid())
   username     String
   email        String @unique
-  passwordHash String
+  password     String
   bio          String @default("No bio yet")
   profileImg   String @default("https://cdn-icons-png.flaticon.com/512/149/149071.png")
+  isAdmin      Boolean @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
