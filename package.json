@@ -2,27 +2,25 @@
   "name": "flash-card-app-express-js",
   "version": "1.0.0",
   "description": "",
-  "main": "server.ts",
+  "main": "server.js",
   "scripts": {
-    "dev": "nodemon --watch api --exec \"node --import ./register.js\" api/server.ts",
-    "build": "tsc",
-    "start": "node dist/api/server.js"
+    "dev": "nodemon api/server.js",
+    "start": "node api/server.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "module",
   "dependencies": {
-    "@prisma/client": "^7.1.0",
-    "@types/express": "^5.0.6",
-    "@types/node": "^24.10.1",
+    "@prisma/client": "^6.19.0",
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
     "nodemon": "^3.1.11",
-    "prisma": "^7.1.0",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.9.3"
+    "prisma": "^6.19.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6"
   }
 }
