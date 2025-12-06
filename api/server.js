@@ -25,4 +25,4 @@ if (config.nodeEnv === 'development') {
   })
 }
 
-export default app;
+export default (req, res) => app(req, res);
