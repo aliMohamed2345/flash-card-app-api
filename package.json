@@ -4,12 +4,13 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "vercel-build": "prisma generate",
-    "dev": "nodemon api/server.js",
-    "start": "node api/server.js"
+    "prisma-build": "prisma generate",
+    "dev": "nodemon",
+    "start": "npx tsc && node dist/api/server.js",
+    "build": "npx tsc"
   },
   "keywords": [],
-  "author": "",
+  "author": "ali mohamed ali",
   "license": "ISC",
   "type": "module",
   "dependencies": {
@@ -24,6 +25,12 @@
     "prisma": "^6.19.0"
   },
   "devDependencies": {
-    "@types/express": "^5.0.6"
+    "@types/cookie-parser": "^1.4.10",
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^24.10.1",
+    "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.9.3"
   }
 }
