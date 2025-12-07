@@ -6,8 +6,8 @@
   "scripts": {
     "prisma-build": "prisma generate",
     "dev": "nodemon",
-    "start": "npx tsc && node dist/api/server.js",
-    "build": "npx tsc"
+    "start": "node dist/api/server.js",
+    "build": "npx tsc && npm run prisma-build"
   },
   "keywords": [],
   "author": "ali mohamed ali",

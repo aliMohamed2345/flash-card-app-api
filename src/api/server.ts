@@ -10,7 +10,6 @@ import { statusCode } from "../utils/status-code.js";
 
 const port = (config.port as number) || 3000;
 const app = express();
-
 app.use(express.json());
 app.use(cookieParser());
 app.use("/v1/auth", authRoutes);
