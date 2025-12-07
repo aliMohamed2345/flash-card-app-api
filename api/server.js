@@ -4,6 +4,8 @@ import authRoutes from '../routes/auth.routes.js'
 import { NotFoundMiddleware, globalErrorHandler } from '../utils/globalErrorHandlers.js';
 import cookieParser from 'cookie-parser';
 import { statusCode } from "../utils/status-code.js";
+
+
 const port = config.port || 3000;
 const app = express();
 
@@ -19,10 +21,8 @@ app.use(NotFoundMiddleware)
 
 app.use(globalErrorHandler)
 
-if (config.nodeEnv === 'development') {
-  app.listen(port, () => {
-    console.log(`Server running on port ${port}`)
-  })
-}
+app.listen(port, '0.0.0.0', () => {
+  console.log(`Server running on port ${port}`)
+})
 
-export default (req, res) => app(req, res);
+
