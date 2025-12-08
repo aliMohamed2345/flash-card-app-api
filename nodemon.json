@@ -1,5 +1,10 @@
 {
-    "watch": ["src"],
+    "watch": [
+        "src"
+    ],
+    "ignore": [
+        "dist"
+    ],
     "ext": "ts, js",
-    "exec": "npx ts-node --esm src/api/server.ts"
+    "exec": "npx ts-node-dev src/api/server.ts"
 }

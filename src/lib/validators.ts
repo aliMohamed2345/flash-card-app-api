@@ -1,9 +1,21 @@
 export class Validators {
-  #emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-  #strongPasswordRegex =
+  private emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  private strongPasswordRegex =
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
-  #usernameRegex = /^[a-zA-Z0-9_]+$/;
-  validateSignup(username: string, email: string, password: string) {
+  private usernameRegex = /^[a-zA-Z0-9_]+$/;
+  private isAdminValues = ["true", "false"];
+
+  private isPasswordLengthValid = (pwd: string): Boolean => {
+    return pwd.length >= 6 && pwd.length <= 64;
+  };
+
+  /**
+   * @param username
+   * @param email
+   * @param password
+   * @returns validate the signup user credentials
+   */
+  public validateSignup(username: string, email: string, password: string) {
     //username validation
     if (!username) return { isValid: false, message: "username is required" };
     if (username.length < 3 || username.length > 50) {
@@ -12,7 +24,7 @@ export class Validators {
         message: "Username must be between 3 and 50 characters long.",
       };
     }
-    if (!this.#usernameRegex.test(username))
+    if (!this.usernameRegex.test(username))
       return {
         isValid: false,
         message: "Username can only contain letters, numbers, and underscores.",
@@ -22,7 +34,7 @@ export class Validators {
     if (!email) return { isValid: false, message: "email is required" };
     if (typeof email !== "string")
       return { isValid: false, message: "email should be a string" };
-    if (!this.#emailRegex.test(email))
+    if (!this.emailRegex.test(email))
       return {
         isValid: false,
         message: "email is invalid, please provide a valid email",
@@ -37,7 +49,7 @@ export class Validators {
         isValid: false,
         message: `password must be between 6 and 64 characters long`,
       };
-    if (!this.#strongPasswordRegex.test(password))
+    if (!this.strongPasswordRegex.test(password))
       return {
         isValid: false,
         message: `Password must include uppercase, lowercase, number, and special character.`,
@@ -45,12 +57,18 @@ export class Validators {
 
     return { isValid: true, message: "" };
   }
-  validateLogin(email: string, password: string) {
+
+  /**
+   * @param email
+   * @param password
+   * @returns validate the login user credentials
+   */
+  public validateLogin(email: string, password: string) {
     //email validation
     if (!email) return { isValid: false, message: "email is required" };
     if (typeof email !== "string")
       return { isValid: false, message: "email should be a string" };
-    if (!this.#emailRegex.test(email))
+    if (!this.emailRegex.test(email))
       return {
         isValid: false,
         message: "email is invalid, please provide a valid email",
@@ -65,7 +83,7 @@ export class Validators {
         isValid: false,
         message: `password must be between 6 and 64 characters long`,
       };
-    if (!this.#strongPasswordRegex.test(password))
+    if (!this.strongPasswordRegex.test(password))
       return {
         isValid: false,
         message: `Password must include uppercase, lowercase, number, and special character.`,
@@ -73,4 +91,169 @@ export class Validators {
 
     return { isValid: true, message: "" };
   }
+
+  /**
+   * @param email
+   * @param username
+   * @param bio
+   * @returns validate the update user credentials
+   */
+  public validateUpdateUser(email: string, username: string, bio: string) {
+    //email validation
+    if (email) {
+      if (typeof email !== "string")
+        return { isValid: false, message: "email should be a string" };
+      if (!this.emailRegex.test(email))
+        return {
+          isValid: false,
+          message: "email is invalid, please provide a valid email",
+        };
+    }
+
+    //user name validation
+    if (username) {
+      if (username.length < 3 || username.length > 50) {
+        return {
+          isValid: false,
+          message: "Username must be between 3 and 50 characters long.",
+        };
+      }
+      if (!this.usernameRegex.test(username))
+        return {
+          isValid: false,
+          message:
+            "Username can only contain letters, numbers, and underscores.",
+        };
+    }
+
+    if (bio) {
+      if (typeof bio !== "string")
+        return { isValid: false, message: "bio should be a string" };
+
+      if (bio.length < 2 || bio.length > 100)
+        return {
+          isValid: false,
+          message: "bio must be between 2 and 100 characters long",
+        };
+    }
+    return { isValid: true, message: "" };
+  }
+  /**
+   *
+   * @param password
+   * @param newPassword
+   * @param confirmPassword
+   * @returns validate the password user data
+   */
+  public validatePasswordChange(
+    password: string,
+    newPassword: string,
+    confirmPassword: string
+  ) {
+    if (!password || !newPassword || !confirmPassword) {
+      return {
+        isValid: false,
+        message: "Password, new password, and confirm password are required.",
+      };
+    }
+
+    if (
+      typeof password !== "string" ||
+      typeof newPassword !== "string" ||
+      typeof confirmPassword !== "string"
+    ) {
+      return {
+        isValid: false,
+        message: "All password fields must be strings.",
+      };
+    }
+
+    if (
+      !this.isPasswordLengthValid(password) ||
+      !this.isPasswordLengthValid(newPassword) ||
+      !this.isPasswordLengthValid(confirmPassword)
+    ) {
+      return {
+        isValid: false,
+        message: "All passwords must be between 6 and 64 characters long.",
+      };
+    }
+
+    if (!this.strongPasswordRegex.test(newPassword)) {
+      return {
+        isValid: false,
+        message:
+          "New password must include uppercase, lowercase, number, and special character.",
+      };
+    }
+
+    if (newPassword !== confirmPassword) {
+      return {
+        isValid: false,
+        message: "New password and confirm password must match.",
+      };
+    }
+
+    // New password must not be same as old
+    if (password === newPassword) {
+      return {
+        isValid: false,
+        message: "New password must be different from the old password.",
+      };
+    }
+
+    return { isValid: true, message: "" };
+  }
+  public validateUsersSearchQuery = (
+    isAdmin: string,
+    page: string,
+    q: string,
+    userNumbers: string
+  ) => {
+    // isAdmin validator
+    if (isAdmin) {
+      const lower = isAdmin.trim().toLowerCase();
+      if (!["true", "false"].includes(lower)) {
+        return {
+          isValid: false,
+          message: "Invalid isAdmin value: must be true or false",
+        };
+      }
+    }
+
+    // q validator
+    if (q) {
+      if (q.length < 1 || q.length > 100) {
+        return {
+          isValid: false,
+          message: "Invalid q value: must be between 1 and 100 characters",
+        };
+      }
+    }
+
+    // page validator
+    if (page) {
+      const pageNumber = +page;
+      if (isNaN(pageNumber) || pageNumber < 1) {
+        return {
+          isValid: false,
+          message: "Invalid page value: must be a positive number",
+        };
+      }
+    }
+
+    // userNumbers validator
+    if (userNumbers) {
+      const num = +userNumbers;
+      if (isNaN(num) || num < 1 || num > 20) {
+        return {
+          isValid: false,
+          message:
+            "Invalid userNumbers value: must be between 1 and 20 per page",
+        };
+      }
+    }
+
+    return { isValid: true, message: "" };
+  };
 }

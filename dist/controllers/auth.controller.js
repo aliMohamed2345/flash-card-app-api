@@ -7,6 +7,12 @@ import { Validators } from "../lib/validators.js";
 const db = new PrismaClient();
 const Validator = new Validators();
 class AuthController {
+    /**
+     *
+     * @param req
+     * @param res
+     * @returns handle the login process
+     */
     login = async (req, res) => {
         try {
             const { email, password } = req.body;
@@ -15,19 +21,19 @@ class AuthController {
             if (!isValid)
                 return res
                     .status(statusCode.BAD_REQUEST)
-                    .json({ status: false, message });
+                    .json({ success: false, message });
             // const user = await db.user.findUnique({ where: { email }, select: { password: false, isAdmin: false, email: true, username: true, id: true } })
             const user = await db.user.findUnique({ where: { email } });
             if (!user)
                 return res
                     .status(statusCode.NOT_FOUND)
-                    .json({ status: false, message: "User not found" });
+                    .json({ success: false, message: "User not found" });
             const isPasswordMatch = await bcrypt.compare(password, user.password);
             if (!isPasswordMatch)
                 res
                     .status(statusCode.BAD_REQUEST)
-                    .json({ status: false, message: "Invalid password" });
-            this.#generateToken(res, user.id, user.isAdmin);
+                    .json({ success: false, message: "Invalid password" });
+            this.generateToken(res, user.id, user.isAdmin);
             return res.status(statusCode.OK).json({
                 status: true,
                 message: `Login successfully`,
@@ -51,6 +57,12 @@ class AuthController {
             });
         }
     };
+    /**
+     *
+     * @param req
+     * @param res
+     * @returns handle signup process
+     */
     signup = async (req, res) => {
         try {
             const { email, password, username } = req.body;
@@ -73,7 +85,7 @@ class AuthController {
             });
             if (user)
                 return res.status(statusCode.CONFLICT).json({
-                    status: false,
+                    success: false,
                     message: "User already exists, please login",
                 });
             //hash the password
@@ -82,10 +94,10 @@ class AuthController {
             const newUser = await db.user.create({
                 data: { email, password: hashedPassword, username },
             });
-            this.#generateToken(res, newUser.id, newUser.isAdmin);
+            this.generateToken(res, newUser.id, newUser.isAdmin);
             return res
                 .status(statusCode.CREATED)
-                .json({ status: true, message: "User created successfully", newUser });
+                .json({ success: true, message: "User created successfully", newUser });
         }
         catch (error) {
             const message = error instanceof Error ? error.message : "Internal server error";
@@ -96,6 +108,12 @@ class AuthController {
             });
         }
     };
+    /**
+     *
+     * @param req
+     * @param res
+     * @returns get the current user profile
+     */
     profile = async (req, res) => {
         try {
             const { id: userId } = req.user;
@@ -117,7 +135,7 @@ class AuthController {
             if (!user)
                 return res
                     .status(statusCode.NOT_FOUND)
-                    .json({ status: false, message: "User not found" });
+                    .json({ success: false, message: "User not found" });
             return res.status(statusCode.OK).json({ success: true, user });
         }
         catch (error) {
@@ -129,6 +147,12 @@ class AuthController {
             });
         }
     };
+    /**
+     *
+     * @param req
+     * @param res
+     * @returns handle the logout process to the current user
+     */
     logout = (req, res) => {
         try {
             res.clearCookie("token");
@@ -140,12 +164,20 @@ class AuthController {
             const message = error instanceof Error ? error.message : "Internal server error";
             console.log(message);
             return res.status(statusCode.SERVER_ERROR).json({
-                status: false,
+                success: false,
                 message: `Internal server error: ${message}`,
             });
         }
     };
-    #generateToken = (res, id, isAdmin, numberOfDays = 1) => {
+    /**
+     *
+     * @param res
+     * @param id current user id
+     * @param isAdmin checking weather the user admin or not
+     * @param numberOfDays optional parameter of handle the cookie age
+     * @returns private method that generate the user token
+     */
+    generateToken = (res, id, isAdmin, numberOfDays = 1) => {
         const token = jwt.sign({ id, isAdmin }, config.jwtSecret, {
             expiresIn: "1d",
         });

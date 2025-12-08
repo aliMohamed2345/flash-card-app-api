@@ -2,6 +2,9 @@ import { config } from "../utils/env-config.js";
 import { statusCode } from "../utils/status-code.js";
 import jwt from "jsonwebtoken";
 import type { Request, Response, NextFunction } from "express";
+import { PrismaClient } from "@prisma/client";
+import multer, { FileFilterCallback, Multer } from "multer";
+const db = new PrismaClient();
 
 declare module "express-serve-static-core" {
   interface Request {
@@ -11,14 +14,21 @@ declare module "express-serve-static-core" {
     };
   }
 }
-class Middlewares {
-  verifyToken = (req: Request, res: Response, next: NextFunction) => {
+export class Middlewares {
+  /**
+   *
+   * @param req
+   * @param res
+   * @param next
+   * @returns checking the token existence before start with any operations
+   */
+  public verifyToken = (req: Request, res: Response, next: NextFunction) => {
     try {
       const token = req.cookies?.token;
       if (!token)
         return res
           .status(statusCode.UNAUTHORIZED)
-          .json({ status: false, message: "Unauthorized:No token provided" });
+          .json({ success: false, message: "Unauthorized:No token provided" });
 
       const decoded = jwt.verify(token, config.jwtSecret as string);
 
@@ -29,9 +39,65 @@ class Middlewares {
       console.log(`invalid Token:${message}`);
       return res
         .status(statusCode.UNAUTHORIZED)
-        .json({ status: false, message: `Unauthorized:${message}` });
+        .json({ success: false, message: `Unauthorized:${message}` });
+    }
+  };
+
+  /**
+   *
+   * @param req
+   * @param res
+   * @param next
+   * @returns checking weather the user admin or no
+   */
+  public isAdmin = async (req: Request, res: Response, next: NextFunction) => {
+    const { id: userId } = req.user as { id: string };
+    try {
+      const user = await db.user.findUnique({
+        where: { id: userId },
+        select: { isAdmin: true },
+      });
+      if (!user)
+        return res
+          .status(statusCode.NOT_FOUND)
+          .json({ success: false, message: "User not found" });
+      if (!user.isAdmin)
+        return res
+          .status(statusCode.UNAUTHORIZED)
+          .json({ success: false, message: "Unauthorized:User is not admin" });
+
+      next();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Invalid Token";
+      console.log(`invalid Token:${message}`);
+      return res
+        .status(statusCode.UNAUTHORIZED)
+        .json({ success: false, message: `Unauthorized:${message}` });
     }
   };
 }
 
-export default Middlewares;
+export class UploadService {
+  private storage = multer.memoryStorage();
+
+  // Use arrow function to preserve 'this' and get correct typing
+  private fileFilter = (
+    req: Request,
+    file: Express.Multer.File,
+    cb: FileFilterCallback
+  ) => {
+    const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true); // allow file
+    } else {
+      cb(null, false); // reject file
+      console.log("only image files are allowed");
+    }
+  };
+
+  public upload = multer({
+    storage: this.storage,
+    fileFilter: this.fileFilter, // no need to bind when using arrow function
+  });
+}

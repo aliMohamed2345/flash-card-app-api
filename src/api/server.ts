@@ -1,6 +1,8 @@
 import express from "express";
 import { config } from "../utils/env-config.js";
 import authRoutes from "../routes/auth.routes.js";
+import usersRoutes from "../routes/users.routes.js";
+import profileRoutes from "../routes/profile.routes.js";
 import {
   NotFoundMiddleware,
   globalErrorHandler,
@@ -12,7 +14,10 @@ const port = (config.port as number) || 3000;
 const app = express();
 app.use(express.json());
 app.use(cookieParser());
-app.use("/v1/auth", authRoutes);
+
+app.use("/api/v1/auth", authRoutes);
+app.use("/api/v1/profile", profileRoutes);
+app.use("/api/v1/users", usersRoutes);
 
 app.get("/", (req, res) => {
   res.status(statusCode.OK).json({ message: "Hello world" });
