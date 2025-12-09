@@ -84,6 +84,7 @@ export class ProfileController {
           createdAt: true,
           profileImg: true,
           updatedAt: true,
+          Decks: { where: { isPublic: true } },
         },
       });
       if (!user)

@@ -9,7 +9,7 @@ import cookieParser from "cookie-parser";
 import authRoutes from "../routes/auth.routes.js";
 import usersRoutes from "../routes/users.routes.js";
 import profileRoutes from "../routes/profile.routes.js";
-
+import deckRoutes from "../routes/deck.routes.js";
 //error handlers
 import {
   NotFoundMiddleware,
@@ -49,6 +49,7 @@ app.use(
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/profile", profileRoutes);
 app.use("/api/v1/users", usersRoutes);
+app.use("/api/v1/deck", deckRoutes);
 
 app.get("/", (req, res) => {
   res.status(statusCode.OK).json({ message: "Hello world" });

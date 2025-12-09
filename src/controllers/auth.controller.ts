@@ -41,7 +41,7 @@ class AuthController {
       this.generateToken(res, user.id, user.isAdmin);
 
       return res.status(statusCode.OK).json({
-        status: true,
+        success: true,
         message: `Login successfully`,
         user: {
           email: user.email,
@@ -58,7 +58,7 @@ class AuthController {
         error instanceof Error ? error.message : "Internal server error";
       console.log(message);
       return res.status(statusCode.SERVER_ERROR).json({
-        status: false,
+        success: false,
         message: `Internal server error: ${message}`,
       });
     }
@@ -160,7 +160,7 @@ class AuthController {
         error instanceof Error ? error.message : "Internal server error";
       console.log(message);
       return res.status(statusCode.SERVER_ERROR).json({
-        status: false,
+        success: false,
         message: `Internal server error: ${message}`,
       });
     }

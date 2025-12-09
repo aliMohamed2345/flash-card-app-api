@@ -3,7 +3,7 @@ export class Validators {
   private strongPasswordRegex =
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
   private usernameRegex = /^[a-zA-Z0-9_]+$/;
-  private isAdminValues = ["true", "false"];
+  private booleanValues = ["true", "false"];
 
   private isPasswordLengthValid = (pwd: string): Boolean => {
     return pwd.length >= 6 && pwd.length <= 64;
@@ -138,6 +138,7 @@ export class Validators {
     }
     return { isValid: true, message: "" };
   }
+
   /**
    *
    * @param password
@@ -204,6 +205,14 @@ export class Validators {
 
     return { isValid: true, message: "" };
   }
+
+  /**
+   * @param isAdmin
+   * @param page
+   * @param q
+   * @param userNumbers
+   * @returns validate the user search Query to the getAllUsers Controller
+   */
   public validateUsersSearchQuery = (
     isAdmin: string,
     page: string,
@@ -213,7 +222,7 @@ export class Validators {
     // isAdmin validator
     if (isAdmin) {
       const lower = isAdmin.trim().toLowerCase();
-      if (!["true", "false"].includes(lower)) {
+      if (!this.booleanValues.includes(lower)) {
         return {
           isValid: false,
           message: "Invalid isAdmin value: must be true or false",
@@ -256,4 +265,98 @@ export class Validators {
 
     return { isValid: true, message: "" };
   };
+
+  /**
+   * validateDeckData
+   * @param title
+   * @param description
+   * @param isPublic
+   * checks if the deck data is valid
+   */
+  public validateDeckData(
+    title: string,
+    description: string,
+    isPublic: string
+  ) {
+    //title validations
+    title = title.trim();
+    description = description.trim();
+    isPublic = isPublic.trim().toLowerCase();
+
+    if (!title)
+      return {
+        isValid: false,
+        message: "Title is required",
+      };
+
+    if (typeof title !== "string")
+      return { isValid: false, message: "title should be a sting " };
+
+    if (title.length < 3 || title.length > 100)
+      return {
+        isValid: false,
+        message: "Title must be between 3 and 100 characters long",
+      };
+
+    //description validations
+    if (!description) {
+      return {
+        isValid: false,
+        message: "Description is required",
+      };
+    }
+
+    if (typeof description !== "string")
+      return { isValid: false, message: "description should be a string" };
+
+    if (description.length < 2 || description.length > 200)
+      return {
+        isValid: false,
+        message: "Description must be between 2 and 1000 characters long",
+      };
+
+    //is Public validations
+    if (!isPublic) {
+      return {
+        isValid: false,
+        message: "isPublic is required",
+      };
+    }
+
+    if (!this.booleanValues.includes(isPublic)) {
+      return {
+        isValid: false,
+        message: "isPublic must be true or false",
+      };
+    }
+
+    return { isValid: true, message: "" };
+  }
+
+  public validateUpdateDeckData(title: string, description: string) {
+    title = title.trim();
+    description = description.trim();
+    if (title) {
+      if (typeof title !== "string")
+        return { isValid: false, message: "title should be a sting " };
+
+      if (title.length < 3 || title.length > 100)
+        return {
+          isValid: false,
+          message: "Title must be between 3 and 100 characters long",
+        };
+    }
+    if (description) {
+      if (typeof description !== "string")
+        return { isValid: false, message: "description should be a string" };
+
+      if (description.length < 2 || description.length > 200)
+        return {
+          isValid: false,
+          message: "Description must be between 2 and 1000 characters long",
+        };
+    }
+
+    return { isValid: true, message: "" };
+  }
 }

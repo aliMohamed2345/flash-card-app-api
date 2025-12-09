@@ -15,7 +15,36 @@ model User {
   bio          String @default("No bio yet")
   profileImg   String @default("https://cdn-icons-png.flaticon.com/512/149/149071.png")
   isAdmin      Boolean @default(false)
+  Decks        Deck[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Deck {
+  id          String       @id @default(uuid())
+  title       String
+  description String?
+  isPublic    Boolean      @default(true)
+  ownerId     String
+  owner       User         @relation(fields: [ownerId], references: [id])
+  cards       Flashcard[]  // no @relation arguments here
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@index([ownerId])
+}
+
+model Flashcard {
+  id          String   @id @default(uuid())
+  front       String
+  back        String
+  hint        String? 
+  deckId      String
+  deck        Deck     @relation(fields: [deckId], references: [id], onDelete: Cascade) // <-- here
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([deckId])
 }
