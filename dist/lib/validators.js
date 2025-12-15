@@ -1,8 +1,7 @@
-export class Validators {
+class AuthValidators {
+    usernameRegex = /^[a-zA-Z0-9_]+$/;
     emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
-    usernameRegex = /^[a-zA-Z0-9_]+$/;
-    booleanValues = ["true", "false"];
     isPasswordLengthValid = (pwd) => {
         return pwd.length >= 6 && pwd.length <= 64;
     };
@@ -88,48 +87,6 @@ export class Validators {
         return { isValid: true, message: "" };
     }
     /**
-     * @param email
-     * @param username
-     * @param bio
-     * @returns validate the update user credentials
-     */
-    validateUpdateUser(email, username, bio) {
-        //email validation
-        if (email) {
-            if (typeof email !== "string")
-                return { isValid: false, message: "email should be a string" };
-            if (!this.emailRegex.test(email))
-                return {
-                    isValid: false,
-                    message: "email is invalid, please provide a valid email",
-                };
-        }
-        //user name validation
-        if (username) {
-            if (username.length < 3 || username.length > 50) {
-                return {
-                    isValid: false,
-                    message: "Username must be between 3 and 50 characters long.",
-                };
-            }
-            if (!this.usernameRegex.test(username))
-                return {
-                    isValid: false,
-                    message: "Username can only contain letters, numbers, and underscores.",
-                };
-        }
-        if (bio) {
-            if (typeof bio !== "string")
-                return { isValid: false, message: "bio should be a string" };
-            if (bio.length < 2 || bio.length > 100)
-                return {
-                    isValid: false,
-                    message: "bio must be between 2 and 100 characters long",
-                };
-        }
-        return { isValid: true, message: "" };
-    }
-    /**
      *
      * @param password
      * @param newPassword
@@ -177,6 +134,51 @@ export class Validators {
                 isValid: false,
                 message: "New password must be different from the old password.",
             };
+        }
+        return { isValid: true, message: "" };
+    }
+}
+export class Validators extends AuthValidators {
+    booleanValues = ["true", "false"];
+    /**
+     * @param email
+     * @param username
+     * @param bio
+     * @returns validate the update user credentials
+     */
+    validateUpdateUser(email, username, bio) {
+        //email validation
+        if (email) {
+            if (typeof email !== "string")
+                return { isValid: false, message: "email should be a string" };
+            if (!this.emailRegex.test(email))
+                return {
+                    isValid: false,
+                    message: "email is invalid, please provide a valid email",
+                };
+        }
+        //user name validation
+        if (username) {
+            if (username.length < 3 || username.length > 50) {
+                return {
+                    isValid: false,
+                    message: "Username must be between 3 and 50 characters long.",
+                };
+            }
+            if (!this.usernameRegex.test(username))
+                return {
+                    isValid: false,
+                    message: "Username can only contain letters, numbers, and underscores.",
+                };
+        }
+        if (bio) {
+            if (typeof bio !== "string")
+                return { isValid: false, message: "bio should be a string" };
+            if (bio.length < 2 || bio.length > 100)
+                return {
+                    isValid: false,
+                    message: "bio must be between 2 and 100 characters long",
+                };
         }
         return { isValid: true, message: "" };
     }
@@ -229,6 +231,13 @@ export class Validators {
         }
         return { isValid: true, message: "" };
     };
+    /**
+     *
+     * @param page
+     * @param q
+     * @param isPublic
+     * @returns validate the deck search query
+     */
     validateDeckSearchQuery = (page, q, isPublic) => {
         // page validator
         if (page) {

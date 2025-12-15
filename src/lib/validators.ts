@@ -2,13 +2,11 @@ interface IValidationResult {
   isValid: boolean;
   message: string;
 }
-export class Validators {
-  private emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-  private strongPasswordRegex =
+class AuthValidators {
+  protected usernameRegex = /^[a-zA-Z0-9_]+$/;
+  protected emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  protected strongPasswordRegex =
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
-  private usernameRegex = /^[a-zA-Z0-9_]+$/;
-  private booleanValues = ["true", "false"];
-
   private isPasswordLengthValid = (pwd: string): Boolean => {
     return pwd.length >= 6 && pwd.length <= 64;
   };
@@ -101,57 +99,6 @@ export class Validators {
   }
 
   /**
-   * @param email
-   * @param username
-   * @param bio
-   * @returns validate the update user credentials
-   */
-  public validateUpdateUser(
-    email: string,
-    username: string,
-    bio: string
-  ): IValidationResult {
-    //email validation
-    if (email) {
-      if (typeof email !== "string")
-        return { isValid: false, message: "email should be a string" };
-      if (!this.emailRegex.test(email))
-        return {
-          isValid: false,
-          message: "email is invalid, please provide a valid email",
-        };
-    }
-
-    //user name validation
-    if (username) {
-      if (username.length < 3 || username.length > 50) {
-        return {
-          isValid: false,
-          message: "Username must be between 3 and 50 characters long.",
-        };
-      }
-      if (!this.usernameRegex.test(username))
-        return {
-          isValid: false,
-          message:
-            "Username can only contain letters, numbers, and underscores.",
-        };
-    }
-
-    if (bio) {
-      if (typeof bio !== "string")
-        return { isValid: false, message: "bio should be a string" };
-
-      if (bio.length < 2 || bio.length > 100)
-        return {
-          isValid: false,
-          message: "bio must be between 2 and 100 characters long",
-        };
-    }
-    return { isValid: true, message: "" };
-  }
-
-  /**
    *
    * @param password
    * @param newPassword
@@ -217,6 +164,61 @@ export class Validators {
 
     return { isValid: true, message: "" };
   }
+}
+
+export class Validators extends AuthValidators {
+  private booleanValues = ["true", "false"];
+
+  /**
+   * @param email
+   * @param username
+   * @param bio
+   * @returns validate the update user credentials
+   */
+  public validateUpdateUser(
+    email: string,
+    username: string,
+    bio: string
+  ): IValidationResult {
+    //email validation
+    if (email) {
+      if (typeof email !== "string")
+        return { isValid: false, message: "email should be a string" };
+      if (!this.emailRegex.test(email))
+        return {
+          isValid: false,
+          message: "email is invalid, please provide a valid email",
+        };
+    }
+
+    //user name validation
+    if (username) {
+      if (username.length < 3 || username.length > 50) {
+        return {
+          isValid: false,
+          message: "Username must be between 3 and 50 characters long.",
+        };
+      }
+      if (!this.usernameRegex.test(username))
+        return {
+          isValid: false,
+          message:
+            "Username can only contain letters, numbers, and underscores.",
+        };
+    }
+
+    if (bio) {
+      if (typeof bio !== "string")
+        return { isValid: false, message: "bio should be a string" };
+
+      if (bio.length < 2 || bio.length > 100)
+        return {
+          isValid: false,
+          message: "bio must be between 2 and 100 characters long",
+        };
+    }
+    return { isValid: true, message: "" };
+  }
 
   /**
    * @param isAdmin
@@ -277,6 +279,13 @@ export class Validators {
 
     return { isValid: true, message: "" };
   };
+  /**
+   *
+   * @param page
+   * @param q
+   * @param isPublic
+   * @returns validate the deck search query
+   */
   public validateDeckSearchQuery = (
     page: number,
     q: string,
@@ -379,6 +388,7 @@ export class Validators {
 
     return { isValid: true, message: "" };
   }
+
   /**
    *
    * @param title
@@ -422,7 +432,6 @@ export class Validators {
    * @param hint
    * @returns validate the flash card data
    */
-
   public validateFlashCard = (
     front: string,
     back: string,

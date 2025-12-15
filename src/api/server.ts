@@ -26,15 +26,9 @@ const windowMs = 10 * 60 * 1000;
 
 //middlewares
 app.use(express.json());
+app.set("trust proxy", 1);
 app.use(cookieParser());
 app.use(helmet());
-// app.use(
-//   cors({
-//     origin: config.frontend_url,
-//     credentials: true,
-//     methods: ["GET", "POST", "PUT", "DELETE"],
-//   })
-// );
 app.use(
   limiter({
     limit: 100,
