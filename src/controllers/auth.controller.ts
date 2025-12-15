@@ -1,11 +1,11 @@
 import { statusCode } from "../utils/status-code.js";
-import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { config } from "../utils/env-config.js";
 import { Validators } from "../lib/validators.js";
 import type { Request, Response } from "express";
-const db = new PrismaClient();
+import { TokenPayload } from "../lib/middlewares.js";
+import db from "../lib/prisma.js";
 const Validator = new Validators();
 class AuthController {
   /**
@@ -132,7 +132,7 @@ class AuthController {
    */
   public profile = async (req: Request, res: Response) => {
     try {
-      const { id: userId } = req.user as { id: string };
+      const { id: userId } = req.user as TokenPayload;
 
       //checking if the user exist
       const user = await db.user.findUnique({

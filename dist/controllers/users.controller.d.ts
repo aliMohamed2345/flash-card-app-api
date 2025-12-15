@@ -28,5 +28,10 @@ export declare class UsersController {
      * @returns delete the user by admins only
      */
     deleteUser: (req: Request, res: Response) => Promise<Response<any, Record<string, any>>>;
+    /**
+     * @todo add the functionality of this code with it's pagination query string
+     *
+     */
+    getPublicUserDeck: (req: Request, res: Response) => Promise<Response<any, Record<string, any>>>;
 }
 //# sourceMappingURL=users.controller.d.ts.map

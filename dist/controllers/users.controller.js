@@ -1,7 +1,6 @@
-import { PrismaClient } from "@prisma/client";
 import { statusCode } from "../utils/status-code.js";
 import { Validators } from "../lib/validators.js";
-const db = new PrismaClient();
+import db from "../lib/prisma.js";
 const validator = new Validators();
 export class UsersController {
     /**
@@ -196,6 +195,33 @@ export class UsersController {
             return res
                 .status(statusCode.OK)
                 .json({ success: true, message: "User deleted successfully" });
+        }
+        catch (error) {
+            const message = error instanceof Error ? error.message : "Internal server error";
+            console.log(message);
+            return res.status(statusCode.SERVER_ERROR).json({
+                success: false,
+                message: `Internal server error: ${message}`,
+            });
+        }
+    };
+    /**
+     * @todo add the functionality of this code with it's pagination query string
+     *
+     */
+    getPublicUserDeck = async (req, res) => {
+        const { id } = req.params;
+        try {
+            const userDeck = await db.deck.findMany({
+                where: { ownerId: id, isPublic: true },
+                include: { cards: true },
+            });
+            if (!userDeck || userDeck.length === 0)
+                return res.status(statusCode.NOT_FOUND).json({
+                    success: false,
+                    message: "No deck found",
+                });
+            return res.status(statusCode.OK).json({ success: true, data: userDeck });
         }
         catch (error) {
             const message = error instanceof Error ? error.message : "Internal server error";

@@ -2,7 +2,7 @@ export declare class Validators {
     private emailRegex;
     private strongPasswordRegex;
     private usernameRegex;
-    private isAdminValues;
+    private booleanValues;
     private isPasswordLengthValid;
     /**
      * @param username
@@ -44,7 +44,50 @@ export declare class Validators {
         isValid: boolean;
         message: string;
     };
+    /**
+     * @param isAdmin
+     * @param page
+     * @param q
+     * @param userNumbers
+     * @returns validate the user search Query to the getAllUsers Controller
+     */
     validateUsersSearchQuery: (isAdmin: string, page: string, q: string, userNumbers: string) => {
+        isValid: boolean;
+        message: string;
+    };
+    validateDeckSearchQuery: (page: number, q: string, isPublic: string) => {
+        isValid: boolean;
+        message: string;
+    };
+    /**
+     * validateDeckData
+     * @param title
+     * @param description
+     * @param isPublic
+     * checks if the deck data is valid
+     */
+    validateDeckData(title: string, description: string, isPublic: string): {
+        isValid: boolean;
+        message: string;
+    };
+    /**
+     *
+     * @param title
+     * @param description
+     * @description validate the new deck data for the update process
+     */
+    validateUpdateDeckData(title: string, description: string): {
+        isValid: boolean;
+        message: string;
+    };
+    /**
+     *
+     * @param front
+     * @param back
+     * @param hint
+     * @returns validate the flash card data
+     */
+    validateFlashCard: (front: string, back: string, hint: string) => {
         isValid: boolean;
         message: string;
     };

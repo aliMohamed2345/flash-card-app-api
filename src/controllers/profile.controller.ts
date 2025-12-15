@@ -4,9 +4,10 @@ import { Validators } from "../lib/validators.js";
 import type { Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import cloudinary from "../lib/cloudinary.js";
+import { TokenPayload } from "../lib/middlewares.js";
+import db from "../lib/prisma.js";
 const validator = new Validators();
 
-const db = new PrismaClient();
 export class ProfileController {
   /**
    * updateUserData
@@ -15,7 +16,7 @@ export class ProfileController {
    * @description update the user data
    */
   public updateUserData = async (req: Request, res: Response) => {
-    const { id: userId } = req.user as { id: string };
+    const { id: userId } = req.user as TokenPayload
     const { username, email, bio } = req.body;
     try {
       //validate the user credentials
@@ -70,7 +71,7 @@ export class ProfileController {
    */
   public profile = async (req: Request, res: Response) => {
     try {
-      const { id: userId } = req.user as { id: string };
+      const { id: userId } = req.user as TokenPayload;
 
       //checking if the user exist
       const user = await db.user.findUnique({
@@ -110,7 +111,7 @@ export class ProfileController {
    * @description delete the current user account
    */
   public deleteCurrentUser = async (req: Request, res: Response) => {
-    const { id: userId } = req.user as { id: string };
+    const { id: userId } = req.user as TokenPayload;
     try {
       await db.user.delete({ where: { id: userId } });
       return res
@@ -132,7 +133,7 @@ export class ProfileController {
    * @description upload the user profile image
    */
   public uploadProfileImage = async (req: Request, res: Response) => {
-    const { id: userId } = req.user as { id: string };
+    const { id: userId } = req.user as TokenPayload;
     try {
       if (!req.file)
         return res
@@ -183,7 +184,7 @@ export class ProfileController {
    * @description delete the user profile image
    */
   public deleteProfileImage = async (req: Request, res: Response) => {
-    const { id: userId } = req.user as { id: string };
+    const { id: userId } = req.user as TokenPayload;
     try {
       // Fetch the current user to get the profileImg URL
       const user = await db.user.findUnique({ where: { id: userId } });
@@ -237,7 +238,7 @@ export class ProfileController {
    * @description change the user password
    */
   public changeUserPassword = async (req: Request, res: Response) => {
-    const { id: userId } = req.user as { id: string };
+    const { id: userId } = req.user as TokenPayload;
     const { password, newPassword, confirmPassword } = req.body;
 
     try {

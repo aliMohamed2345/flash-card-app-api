@@ -14,6 +14,10 @@ declare module "express-serve-static-core" {
     };
   }
 }
+export interface TokenPayload {
+  id: string;
+  isAdmin?: boolean;
+}
 export class Middlewares {
   /**
    *
@@ -51,7 +55,7 @@ export class Middlewares {
    * @returns checking weather the user admin or no
    */
   public isAdmin = async (req: Request, res: Response, next: NextFunction) => {
-    const { id: userId } = req.user as { id: string };
+    const { id: userId } = req.user as TokenPayload;
     try {
       const user = await db.user.findUnique({
         where: { id: userId },

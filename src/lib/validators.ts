@@ -1,3 +1,7 @@
+interface IValidationResult {
+  isValid: boolean;
+  message: string;
+}
 export class Validators {
   private emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   private strongPasswordRegex =
@@ -15,7 +19,11 @@ export class Validators {
    * @param password
    * @returns validate the signup user credentials
    */
-  public validateSignup(username: string, email: string, password: string) {
+  public validateSignup(
+    username: string,
+    email: string,
+    password: string
+  ): IValidationResult {
     //username validation
     if (!username) return { isValid: false, message: "username is required" };
     if (username.length < 3 || username.length > 50) {
@@ -63,7 +71,7 @@ export class Validators {
    * @param password
    * @returns validate the login user credentials
    */
-  public validateLogin(email: string, password: string) {
+  public validateLogin(email: string, password: string): IValidationResult {
     //email validation
     if (!email) return { isValid: false, message: "email is required" };
     if (typeof email !== "string")
@@ -98,7 +106,11 @@ export class Validators {
    * @param bio
    * @returns validate the update user credentials
    */
-  public validateUpdateUser(email: string, username: string, bio: string) {
+  public validateUpdateUser(
+    email: string,
+    username: string,
+    bio: string
+  ): IValidationResult {
     //email validation
     if (email) {
       if (typeof email !== "string")
@@ -150,7 +162,7 @@ export class Validators {
     password: string,
     newPassword: string,
     confirmPassword: string
-  ) {
+  ): IValidationResult {
     if (!password || !newPassword || !confirmPassword) {
       return {
         isValid: false,
@@ -218,10 +230,10 @@ export class Validators {
     page: string,
     q: string,
     userNumbers: string
-  ) => {
+  ): IValidationResult => {
     // isAdmin validator
     if (isAdmin) {
-      const lower = isAdmin.trim().toLowerCase();
+      const lower = isAdmin?.trim().toLowerCase();
       if (!this.booleanValues.includes(lower)) {
         return {
           isValid: false,
@@ -265,6 +277,41 @@ export class Validators {
 
     return { isValid: true, message: "" };
   };
+  public validateDeckSearchQuery = (
+    page: number,
+    q: string,
+    isPublic: string
+  ): IValidationResult => {
+    // page validator
+    if (page) {
+      const pageNumber = +page;
+      if (isNaN(pageNumber) || pageNumber < 1) {
+        return {
+          isValid: false,
+          message: "Invalid page value: must be a positive number",
+        };
+      }
+    }
+    if (q) {
+      if (q.length < 1 || q.length > 100) {
+        return {
+          isValid: false,
+          message: "Invalid q value: must be between 1 and 100 characters",
+        };
+      }
+    }
+
+    if (isPublic) {
+      const lower = isPublic.trim().toLowerCase();
+      if (!this.booleanValues.includes(lower)) {
+        return {
+          isValid: false,
+          message: "Invalid isPublic value: must be true or false",
+        };
+      }
+    }
+    return { isValid: true, message: "" };
+  };
 
   /**
    * validateDeckData
@@ -277,11 +324,11 @@ export class Validators {
     title: string,
     description: string,
     isPublic: string
-  ) {
+  ): IValidationResult {
     //title validations
-    title = title.trim();
-    description = description.trim();
-    isPublic = isPublic.trim().toLowerCase();
+    title = title?.trim();
+    description = description?.trim();
+    isPublic = isPublic?.trim().toLowerCase();
 
     if (!title)
       return {
@@ -332,10 +379,18 @@ export class Validators {
 
     return { isValid: true, message: "" };
   }
-
-  public validateUpdateDeckData(title: string, description: string) {
-    title = title.trim();
-    description = description.trim();
+  /**
+   *
+   * @param title
+   * @param description
+   * @description validate the new deck data for the update process
+   */
+  public validateUpdateDeckData(
+    title: string,
+    description: string
+  ): IValidationResult {
+    title = title?.trim();
+    description = description?.trim();
     if (title) {
       if (typeof title !== "string")
         return { isValid: false, message: "title should be a sting " };
@@ -359,4 +414,45 @@ export class Validators {
 
     return { isValid: true, message: "" };
   }
+
+  /**
+   *
+   * @param front
+   * @param back
+   * @param hint
+   * @returns validate the flash card data
+   */
+
+  public validateFlashCard = (
+    front: string,
+    back: string,
+    hint: string
+  ): IValidationResult => {
+    front = front?.trim();
+    back = back?.trim();
+    hint = hint?.trim();
+    //validate the front
+    if (!front) return { isValid: false, message: "front is required" };
+    if (typeof front !== "string")
+      return { isValid: false, message: "front should be a string" };
+
+    if (!back) return { isValid: false, message: "back is required" };
+    if (typeof back !== "string")
+      return { isValid: false, message: "back should be a string" };
+
+    if (front === back)
+      return { isValid: false, message: "front and back cannot be the same" };
+
+    if (hint) {
+      if (typeof hint !== "string")
+        return { isValid: false, message: "hint should be a string" };
+      if (hint.length > 100)
+        return {
+          isValid: false,
+          message: "Hint cannot exceed 100 characters long ",
+        };
+    }
+
+    return { isValid: true, message: "" };
+  };
 }

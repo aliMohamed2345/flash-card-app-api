@@ -2,7 +2,8 @@ import { Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
 import { statusCode } from "../utils/status-code.js";
 import { Validators } from "../lib/validators.js";
-const db = new PrismaClient();
+import { TokenPayload } from "../lib/middlewares.js";
+import db from "../lib/prisma.js";
 const validator = new Validators();
 interface IGetAllUsersQuery {
   page?: string;
@@ -109,10 +110,7 @@ export class UsersController {
    */
   public getSpecificUser = async (req: Request, res: Response) => {
     const { id } = req.params;
-    const { id: userId, isAdmin } = req.user as {
-      id: string;
-      isAdmin: Boolean;
-    };
+    const { id: userId, isAdmin } = req.user as TokenPayload;
     //for checking weather the user is admin or the user is the owner
     const isUserPermitted = userId === id || isAdmin;
     try {
@@ -157,7 +155,7 @@ export class UsersController {
   public toggleRole = async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
-      const { id: userId } = req.user as { id: string };
+      const { id: userId } = req.user as TokenPayload;
       const userRole = await db.user.findUnique({
         where: { id },
         select: { isAdmin: true },
@@ -202,7 +200,7 @@ export class UsersController {
    */
   public deleteUser = async (req: Request, res: Response) => {
     try {
-      const { id: userId } = req.user as { id: string };
+      const { id: userId } = req.user as TokenPayload;
       const { id } = req.params;
       if (id === userId)
         return res
@@ -224,6 +222,33 @@ export class UsersController {
       return res
         .status(statusCode.OK)
         .json({ success: true, message: "User deleted successfully" });
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Internal server error";
+      console.log(message);
+      return res.status(statusCode.SERVER_ERROR).json({
+        success: false,
+        message: `Internal server error: ${message}`,
+      });
+    }
+  };
+  /**
+   * @todo add the functionality of this code with it's pagination query string
+   *
+   */
+  public getPublicUserDeck = async (req: Request, res: Response) => {
+    const { id } = req.params;
+    try {
+      const userDeck = await db.deck.findMany({
+        where: { ownerId: id, isPublic: true },
+        include: { cards: true },
+      });
+      if (!userDeck || userDeck.length === 0)
+        return res.status(statusCode.NOT_FOUND).json({
+          success: false,
+          message: "No deck found",
+        });
+      return res.status(statusCode.OK).json({ success: true, data: userDeck });
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Internal server error";

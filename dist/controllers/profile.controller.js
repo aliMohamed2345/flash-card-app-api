@@ -1,10 +1,9 @@
 import { statusCode } from "../utils/status-code.js";
-import { PrismaClient } from "@prisma/client";
 import { Validators } from "../lib/validators.js";
 import bcrypt from "bcryptjs";
 import cloudinary from "../lib/cloudinary.js";
+import db from "../lib/prisma.js";
 const validator = new Validators();
-const db = new PrismaClient();
 export class ProfileController {
     /**
      * updateUserData
@@ -76,6 +75,7 @@ export class ProfileController {
                     createdAt: true,
                     profileImg: true,
                     updatedAt: true,
+                    Decks: { where: { isPublic: true } },
                 },
             });
             if (!user)

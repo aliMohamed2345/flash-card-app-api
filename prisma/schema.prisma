@@ -16,6 +16,7 @@ model User {
   profileImg   String @default("https://cdn-icons-png.flaticon.com/512/149/149071.png")
   isAdmin      Boolean @default(false)
   Decks        Deck[]
+  Flashcards   Flashcard[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -32,7 +33,7 @@ model Deck {
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
 
-  @@index([ownerId])
+  @@index([ownerId,title])
 }
 
 model Flashcard {
@@ -41,7 +42,9 @@ model Flashcard {
   back        String
   hint        String? 
   deckId      String
-  deck        Deck     @relation(fields: [deckId], references: [id], onDelete: Cascade) // <-- here
+  deck        Deck     @relation(fields: [deckId], references: [id], onDelete: Cascade) 
+  ownerId     String 
+  owner       User     @relation(fields:[ownerId], references:[id])
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

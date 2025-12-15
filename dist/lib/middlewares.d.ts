@@ -8,6 +8,10 @@ declare module "express-serve-static-core" {
         };
     }
 }
+export interface TokenPayload {
+    id: string;
+    isAdmin?: boolean;
+}
 export declare class Middlewares {
     /**
      *

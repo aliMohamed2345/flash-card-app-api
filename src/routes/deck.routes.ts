@@ -10,23 +10,26 @@ const {
   getSpecificDeck,
   updateUserDeck,
   deleteUserDeck,
-  duplicateUserDeck,
   toggleDeckVisibility,
+  downloadDeckJson,
+  downloadDeckExcel,
+  getUserStats,
 } = new DeckController();
 const { verifyToken } = new Middlewares();
-
+import cardRoutes from "./card.routes.js";
 router
   .route("/")
   .get(verifyToken, getAllUserDeck)
   .post(verifyToken, createNewDeck);
+router.get("/stats", verifyToken, getUserStats);
 router
   .route("/:deckId")
   .get(verifyToken, getSpecificDeck)
   .put(verifyToken, updateUserDeck)
   .delete(verifyToken, deleteUserDeck);
-router.post("/:deckId/duplicate", verifyToken, duplicateUserDeck);
 router.put("/:deckId/visibility", verifyToken, toggleDeckVisibility);
-/**
- * @todo add the export route for export decks to excel or json
- */
+router.get("/:deckId/export/json", verifyToken, downloadDeckJson);
+router.get("/:deckId/export/excel", verifyToken, downloadDeckExcel);
+
+router.use("/:deckId/cards", cardRoutes);
 export default router;
