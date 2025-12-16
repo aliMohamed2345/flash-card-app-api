@@ -2,11 +2,13 @@ interface IValidationResult {
   isValid: boolean;
   message: string;
 }
-class AuthValidators {
-  protected usernameRegex = /^[a-zA-Z0-9_]+$/;
-  protected emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-  protected strongPasswordRegex =
+export class Validators {
+  private emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  private strongPasswordRegex =
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
+  private usernameRegex = /^[a-zA-Z0-9_]+$/;
+  private booleanValues = ["true", "false"];
+
   private isPasswordLengthValid = (pwd: string): Boolean => {
     return pwd.length >= 6 && pwd.length <= 64;
   };
@@ -99,6 +101,57 @@ class AuthValidators {
   }
 
   /**
+   * @param email
+   * @param username
+   * @param bio
+   * @returns validate the update user credentials
+   */
+  public validateUpdateUser(
+    email: string,
+    username: string,
+    bio: string
+  ): IValidationResult {
+    //email validation
+    if (email) {
+      if (typeof email !== "string")
+        return { isValid: false, message: "email should be a string" };
+      if (!this.emailRegex.test(email))
+        return {
+          isValid: false,
+          message: "email is invalid, please provide a valid email",
+        };
+    }
+
+    //user name validation
+    if (username) {
+      if (username.length < 3 || username.length > 50) {
+        return {
+          isValid: false,
+          message: "Username must be between 3 and 50 characters long.",
+        };
+      }
+      if (!this.usernameRegex.test(username))
+        return {
+          isValid: false,
+          message:
+            "Username can only contain letters, numbers, and underscores.",
+        };
+    }
+
+    if (bio) {
+      if (typeof bio !== "string")
+        return { isValid: false, message: "bio should be a string" };
+
+      if (bio.length < 2 || bio.length > 100)
+        return {
+          isValid: false,
+          message: "bio must be between 2 and 100 characters long",
+        };
+    }
+    return { isValid: true, message: "" };
+  }
+
+  /**
    *
    * @param password
    * @param newPassword
@@ -162,61 +215,6 @@ class AuthValidators {
       };
     }
 
-    return { isValid: true, message: "" };
-  }
-}
-
-export class Validators extends AuthValidators {
-  private booleanValues = ["true", "false"];
-
-  /**
-   * @param email
-   * @param username
-   * @param bio
-   * @returns validate the update user credentials
-   */
-  public validateUpdateUser(
-    email: string,
-    username: string,
-    bio: string
-  ): IValidationResult {
-    //email validation
-    if (email) {
-      if (typeof email !== "string")
-        return { isValid: false, message: "email should be a string" };
-      if (!this.emailRegex.test(email))
-        return {
-          isValid: false,
-          message: "email is invalid, please provide a valid email",
-        };
-    }
-
-    //user name validation
-    if (username) {
-      if (username.length < 3 || username.length > 50) {
-        return {
-          isValid: false,
-          message: "Username must be between 3 and 50 characters long.",
-        };
-      }
-      if (!this.usernameRegex.test(username))
-        return {
-          isValid: false,
-          message:
-            "Username can only contain letters, numbers, and underscores.",
-        };
-    }
-
-    if (bio) {
-      if (typeof bio !== "string")
-        return { isValid: false, message: "bio should be a string" };
-
-      if (bio.length < 2 || bio.length > 100)
-        return {
-          isValid: false,
-          message: "bio must be between 2 and 100 characters long",
-        };
-    }
     return { isValid: true, message: "" };
   }
 
@@ -289,7 +287,8 @@ export class Validators extends AuthValidators {
   public validateDeckSearchQuery = (
     page: number,
     q: string,
-    isPublic: string
+    isPublic: string,
+    limit?: number
   ): IValidationResult => {
     // page validator
     if (page) {
@@ -316,6 +315,22 @@ export class Validators extends AuthValidators {
         return {
           isValid: false,
           message: "Invalid isPublic value: must be true or false",
+        };
+      }
+    }
+
+    if (limit) {
+      const limitNumber = +limit;
+      if (isNaN(limitNumber) || limitNumber < 1) {
+        return {
+          isValid: false,
+          message: "Invalid limit value: must be a positive number",
+        };
+      }
+      if (limitNumber > 20) {
+        return {
+          isValid: false,
+          message: "Invalid limit value: must be less than or equal to 20",
         };
       }
     }
@@ -460,6 +475,103 @@ export class Validators extends AuthValidators {
           isValid: false,
           message: "Hint cannot exceed 100 characters long ",
         };
+    }
+
+    return { isValid: true, message: "" };
+  };
+
+  /**
+   * @param page
+   * @param limit
+   * @param q
+   * @returns validate the public user deck search query
+   */
+  public validatePublicUserDeckSearchQuery = (
+    page: string,
+    limit: string,
+    q: string
+  ): IValidationResult => {
+    if (page) {
+      const pageNumber = +page;
+      if (isNaN(pageNumber) || pageNumber < 1) {
+        return {
+          isValid: false,
+          message: "Invalid page value: must be a positive number",
+        };
+      }
+    }
+    if (q) {
+      if (q.length < 1 || q.length > 100) {
+        return {
+          isValid: false,
+          message: "Invalid q value: must be between 1 and 100 characters",
+        };
+      }
+    }
+    if (limit) {
+      const limitNumber = +limit;
+      if (isNaN(limitNumber) || limitNumber < 1) {
+        return {
+          isValid: false,
+          message: "Invalid limit value: must be a positive number",
+        };
+      }
+      if (limitNumber > 20) {
+        return {
+          isValid: false,
+          message: "Invalid limit value: must be less than or equal to 20",
+        };
+      }
+    }
+    return { isValid: true, message: "" };
+  };
+
+  public validateCardSearchQuery = (
+    page: string,
+    limit: string,
+    q: string,
+    withHint: string
+  ) => {
+    if (page) {
+      const pageNumber = +page;
+      if (isNaN(pageNumber) || pageNumber < 1) {
+        return {
+          isValid: false,
+          message: "Invalid page value: must be a positive number",
+        };
+      }
+    }
+    if (q) {
+      if (q.length < 1 || q.length > 100) {
+        return {
+          isValid: false,
+          message: "Invalid q value: must be between 1 and 100 characters",
+        };
+      }
+    }
+    if (limit) {
+      const limitNumber = +limit;
+      if (isNaN(limitNumber) || limitNumber < 1) {
+        return {
+          isValid: false,
+          message: "Invalid limit value: must be a positive number",
+        };
+      }
+      if (limitNumber > 20) {
+        return {
+          isValid: false,
+          message: "Invalid limit value: must be less than or equal to 20",
+        };
+      }
+    }
+    if (withHint) {
+      const lower = withHint.trim().toLowerCase();
+      if (!this.booleanValues.includes(lower)) {
+        return {
+          isValid: false,
+          message: "Invalid isPublic value: must be true or false",
+        };
+      }
     }
 
     return { isValid: true, message: "" };

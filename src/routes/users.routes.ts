@@ -9,6 +9,8 @@ const {
   deleteUser,
   getSpecificUser,
   getPublicUserDeck,
+  getSpecificUserDeck,
+  getUserStats,
 } = new UsersController();
 const { verifyToken, isAdmin } = new Middlewares();
 
@@ -19,9 +21,7 @@ router
   .delete(verifyToken, isAdmin, deleteUser);
 
 router.post("/:id/role", verifyToken, isAdmin, toggleRole);
-router.get("/:id/decks", verifyToken, getPublicUserDeck);
-
-/**
- * @todo don't forget to add user stats and user deck stats to  
- */
+router.get("/:id/deck", verifyToken, getPublicUserDeck);
+router.get("/:id/deck/:deckId", verifyToken, getSpecificUserDeck);
+router.get("/:id/deck/stats", verifyToken, getUserStats);
 export default router;

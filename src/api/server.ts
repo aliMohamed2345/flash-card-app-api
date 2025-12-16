@@ -1,9 +1,9 @@
 //packages
 import express from "express";
-import cors from "cors";
 import helmet from "helmet";
 import limiter from "express-rate-limit";
 import cookieParser from "cookie-parser";
+import swaggerUi from "swagger-ui-express";
 
 //routes
 import authRoutes from "../routes/auth.routes.js";
@@ -19,6 +19,7 @@ import {
 //others
 import { config } from "../utils/env-config.js";
 import { statusCode } from "../utils/status-code.js";
+import { swaggerSpec } from "../lib/swagger.js";
 
 const port = (config.port as number) || 3000;
 const app = express();
@@ -40,6 +41,7 @@ app.use(
 );
 
 //middleware routes
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/profile", profileRoutes);
 app.use("/api/v1/users", usersRoutes);

@@ -2,10 +2,11 @@ interface IValidationResult {
     isValid: boolean;
     message: string;
 }
-declare class AuthValidators {
-    protected usernameRegex: RegExp;
-    protected emailRegex: RegExp;
-    protected strongPasswordRegex: RegExp;
+export declare class Validators {
+    private emailRegex;
+    private strongPasswordRegex;
+    private usernameRegex;
+    private booleanValues;
     private isPasswordLengthValid;
     /**
      * @param username
@@ -21,6 +22,13 @@ declare class AuthValidators {
      */
     validateLogin(email: string, password: string): IValidationResult;
     /**
+     * @param email
+     * @param username
+     * @param bio
+     * @returns validate the update user credentials
+     */
+    validateUpdateUser(email: string, username: string, bio: string): IValidationResult;
+    /**
      *
      * @param password
      * @param newPassword
@@ -28,16 +36,6 @@ declare class AuthValidators {
      * @returns validate the password user data
      */
     validatePasswordChange(password: string, newPassword: string, confirmPassword: string): IValidationResult;
-}
-export declare class Validators extends AuthValidators {
-    private booleanValues;
-    /**
-     * @param email
-     * @param username
-     * @param bio
-     * @returns validate the update user credentials
-     */
-    validateUpdateUser(email: string, username: string, bio: string): IValidationResult;
     /**
      * @param isAdmin
      * @param page
@@ -53,7 +51,7 @@ export declare class Validators extends AuthValidators {
      * @param isPublic
      * @returns validate the deck search query
      */
-    validateDeckSearchQuery: (page: number, q: string, isPublic: string) => IValidationResult;
+    validateDeckSearchQuery: (page: number, q: string, isPublic: string, limit?: number) => IValidationResult;
     /**
      * validateDeckData
      * @param title
@@ -77,6 +75,17 @@ export declare class Validators extends AuthValidators {
      * @returns validate the flash card data
      */
     validateFlashCard: (front: string, back: string, hint: string) => IValidationResult;
+    /**
+     * @param page
+     * @param limit
+     * @param q
+     * @returns validate the public user deck search query
+     */
+    validatePublicUserDeckSearchQuery: (page: string, limit: string, q: string) => IValidationResult;
+    validateCardSearchQuery: (page: string, limit: string, q: string, withHint: string) => {
+        isValid: boolean;
+        message: string;
+    };
 }
 export {};
 //# sourceMappingURL=validators.d.ts.map

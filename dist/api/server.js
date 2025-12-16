@@ -3,6 +3,7 @@ import express from "express";
 import helmet from "helmet";
 import limiter from "express-rate-limit";
 import cookieParser from "cookie-parser";
+import swaggerUi from "swagger-ui-express";
 //routes
 import authRoutes from "../routes/auth.routes.js";
 import usersRoutes from "../routes/users.routes.js";
@@ -13,6 +14,7 @@ import { NotFoundMiddleware, globalErrorHandler, } from "../utils/globalErrorHan
 //others
 import { config } from "../utils/env-config.js";
 import { statusCode } from "../utils/status-code.js";
+import { swaggerSpec } from "../lib/swagger.js";
 const port = config.port || 3000;
 const app = express();
 const windowMs = 10 * 60 * 1000;
@@ -27,6 +29,7 @@ app.use(limiter({
     message: `Too many requests from this IP, please try again later after ${windowMs / (1000 * 60)} minutes`,
 }));
 //middleware routes
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/profile", profileRoutes);
 app.use("/api/v1/users", usersRoutes);
