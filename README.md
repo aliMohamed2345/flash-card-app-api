@@ -2,15 +2,6 @@
 
 **Project Overview:** This is a robust, secure, and performance-optimized backend API designed to power a modern flash card application. It provides structured endpoints for complete user management, secure authentication, and CRUD operations for decks and cards, with built-in features for data export and administrative controls.
 
-## 📁 Project Structure
-
-Understanding the file structure helps new contributors quickly locate relevant code for features, middleware, and configuration.
-
-
-
-flash-card-app-api/ ├── node_modules/ ├── src/ │ ├── controllers/ # Business logic for handling requests and database interaction │ │ ├── auth.controller.js │ │ ├── deck.controller.js │ │ ├── profile.controller.js │ │ └── users.controller.js │ ├── lib/ # Utility classes and external services │ │ ├── middlewares.js # Centralized JWT verification and isAdmin logic │ │ └── swagger.js # Swagger documentation configuration │ ├── routes/ # Express routing definition files │ │ ├── auth.routes.js │ │ ├── card.routes.js │ │ ├── deck.routes.js │ │ ├── profile.routes.js │ │ └── users.routes.js │ ├── utils/ # Helper functions and constants │ │ ├── env-config.js # Centralized configuration access │ │ ├── globalErrorHandlers.js # 404 and general error middleware │ │ └── status-code.js # HTTP status code constants │ └── server.js # Main application entry point and middleware setup ├── .env # Environment variables (local config) ├── package.json └── README.md
-
-
 ## 🛠️ Technology Stack
 
 This project is built using modern JavaScript and follows best practices for a scalable and secure backend application.
@@ -18,10 +9,12 @@ This project is built using modern JavaScript and follows best practices for a s
 * **Runtime:** Node.js
 * **Framework:** Express.js
 * **Language:** TypeScript (Implied by imports and modern JS features)
-* **Configuration:** Uses `dotenv` for managing environment variables and a centralized `env-config.js` file for structured access to configuration values.
-* **Security (Core):** `helmet`, `express-rate-limit`.
-* **Authentication:** JWT via `cookie-parser`.
-* **Deployment:** Image hosting handled using **Cloudinary** keys found in the environment configuration.
+* **Configuration:** Uses `dotenv` for managing environment variables and a centralized `config.ts`/`env-config.js` file for structured access to configuration values.
+* **Security (Core):**
+    * `helmet`: Used to secure the Express app by setting various HTTP headers.
+    * `express-rate-limit`: Implemented to limit repeated requests to public and sensitive APIs.
+* **Authentication:** Utilizes JWT via `cookie-parser` for managing user sessions and secure, token-based access control.
+* **Deployment:** Environment variables include specific keys for image hosting (likely **Cloudinary**).
 
 ## ⚙️ Setup and Installation
 
@@ -40,9 +33,11 @@ This project is built using modern JavaScript and follows best practices for a s
 2.  **Install dependencies:**
     ```bash
     npm install
+    # or
+    yarn install
     ```
 3.  **Configure Environment Variables:**
-    Create a `.env` file in the root directory and populate it with the required keys as defined below.
+    The application configuration is managed using a `.env` file, loaded via `dotenv`. You must create this file in the root directory and populate it with the required keys as defined in the application's configuration structure.
 
     #### 🔑 Required `.env` Variables
 
@@ -57,56 +52,117 @@ This project is built using modern JavaScript and follows best practices for a s
     | `CLOUDINARY_API_SECRET` | `string` | Cloudinary API secret. |
     | `FRONTEND_URL` | `string` | The URL of the frontend application (for CORS, etc.). |
 
+    ```env
+    # Example .env file
+    PORT=3000
+    DATABASE_URL=mongodb://localhost:27017/flashcards
+    JWT_SECRET=YOUR_SUPER_SECURE_SECRET_KEY
+    NODE_ENV=development
+    
+    # Cloudinary Configuration
+    CLOUDINARY_CLOUD_NAME=your_cloud_name
+    CLOUDINARY_API_KEY=123456789012345
+    CLOUDINARY_API_SECRET=super_secret_cloudinary_key
+    
+    FRONTEND_URL=http://localhost:5173
+    ```
+
 4.  **Start the server:**
     ```bash
+    # Assuming you have a start script like 'npm run dev' or 'npm start'
     npm start
     ```
-
-## 🤝 Contributing
-
-We welcome contributions! To ensure a smooth process, please follow these guidelines:
-
-1.  **Fork the Repository:** Start by forking the project repository to your own GitHub account.
-2.  **Clone Your Fork:**
-    ```bash
-    git clone [Your-Fork-URL]
-    ```
-3.  **Create a Branch:** Create a new branch for your feature or fix.
-    ```bash
-    git checkout -b feature/add-new-export-format
-    # or
-    git checkout -b fix/auth-bug-login
-    ```
-4.  **Code and Test:** Implement your changes. Ensure all existing tests pass and write new tests for your added functionality.
-5.  **Commit Changes:** Write clear, descriptive commit messages.
-    ```bash
-    git commit -m "feat: Added PDF export option to deck management"
-    ```
-6.  **Push to GitHub:** Push your changes to your fork.
-    ```bash
-    git push origin feature/add-new-export-format
-    ```
-7.  **Open a Pull Request (PR):** Open a Pull Request from your branch to the `main` branch of the original repository. Please describe the changes and the motivation for the change.
+    The server will run on the port specified in your environment config.
 
 ## 🛡️ Security & Error Handling
 
 ### Rate Limiting
 
-* **Limit:** 100 requests per IP.
-* **Window:** 10 minutes.
+The API uses `express-rate-limit` to restrict traffic.
+
+* **Limit:** 100 requests.
+* **Window:** 10 minutes (600,000 milliseconds).
 
 ### Global Error Handling
 
-* **404 Handler:** `NotFoundMiddleware` handles requests to non-existent routes.
-* **Centralized Error Handling:** All operational errors are processed by the `globalErrorHandler` for consistent, secure error responses.
+* **404 Handler:** Requests to non-existent routes are captured by the `NotFoundMiddleware`.
+* **Centralized Error Handling:** All operational errors are processed by the `globalErrorHandler`, ensuring consistent and clean error responses across the entire application.
 
 ## 🚀 API Endpoints
 
-*(The detailed table of endpoints from the previous response goes here, covering Authentication, Profile, Users, Deck, and Card routes.)*
+The API is versioned under `/api/v1/`.
+
+### 1. General & Health Check
+
+| Method | Endpoint | Description | Status |
+| :----- | :------- | :---------- | :----- |
+| `GET` | `/` | Basic health check. Returns status `200` with `{"message": "Hello world"}`. | Public |
+
+### 2. Authentication (`/api/v1/auth`)
+
+| Method | Endpoint | Description | Middleware |
+| :----- | :------- | :---------- | :--------- |
+| `POST` | `/login` | Authenticates a user and issues a token/cookie. | None |
+| `POST` | `/signup` | Registers a new user account. | None |
+| `POST` | `/logout` | Clears the user's session cookie/token. | `verifyToken` |
+
+### 3. Profile (`/api/v1/profile`)
+
+All profile routes require user authentication (`verifyToken`).
+
+| Method | Endpoint | Description | Middleware |
+| :----- | :------- | :---------- | :--------- |
+| `GET` | `/` | Retrieve the current user's profile data. | `verifyToken` |
+| `PUT` | `/` | Update the current user's data (e.g., name, email). | `verifyToken` |
+| `DELETE` | `/` | Permanently delete the current user's account. | `verifyToken` |
+| `PUT` | `/change-password` | Update the current user's password. | `verifyToken` |
+| `POST` | `/upload-image` | Upload a new profile image using the file field **"image"**. | `verifyToken`, `upload.single("image")` |
+| `DELETE` | `/delete-image` | Remove the current profile image. | `verifyToken` |
+
+### 4. Users (Admin & Public Access) (`/api/v1/users`)
+
+| Method | Endpoint | Description | Middleware |
+| :----- | :------- | :---------- | :--------- |
+| `GET` | `/` | **Admin Only:** Retrieve a list of all users. | `verifyToken`, `isAdmin` |
+| `GET` | `/:id` | Retrieve a specific user's public profile (requires login). | `verifyToken` |
+| `DELETE` | `/:id` | **Admin Only:** Delete a specific user account. | `verifyToken`, `isAdmin` |
+| `POST` | `/:id/role` | **Admin Only:** Toggle a specific user's role (e.g., Admin status). | `verifyToken`, `isAdmin` |
+| `GET` | `/:id/deck` | Retrieve a specific user's **public** decks. | `verifyToken` |
+| `GET` | `/:id/deck/:deckId` | Retrieve a specific deck from a specific user. | `verifyToken` |
+| `GET` | `/:id/deck/stats` | Get statistics for a specific user's decks. | `verifyToken` |
+
+### 5. Deck Management (`/api/v1/deck`)
+
+All deck routes require user authentication (`verifyToken`).
+
+| Method | Endpoint | Description | Middleware |
+| :----- | :------- | :---------- | :--------- |
+| `GET` | `/` | Retrieve all decks belonging to the current user. | `verifyToken` |
+| `POST` | `/` | Create a new flash card deck. | `verifyToken` |
+| `GET` | `/stats` | Get statistics across all of the current user's decks. | `verifyToken` |
+| `GET` | `/:deckId` | Retrieve a specific deck. | `verifyToken` |
+| `PUT` | `/:deckId` | Update the details (name, description, etc.) of a specific deck. | `verifyToken` |
+| `DELETE` | `/:deckId` | Delete a specific deck. | `verifyToken` |
+| `PUT` | `/:deckId/visibility` | Toggle the public visibility status of a deck. | `verifyToken` |
+| `GET` | `/:deckId/export/json` | Download the deck data as a JSON file. | `verifyToken` |
+| `GET` | `/:deckId/export/excel` | Download the deck data as an Excel file. | `verifyToken` |
+
+### 6. Card Management (`/api/v1/deck/:deckId/cards`)
+
+This is a nested route structure, handling flashcards within a specific deck.
+
+| Method | Endpoint | Description | Middleware |
+| :----- | :------- | :---------- | :--------- |
+| `GET` | `/:deckId/cards` | Retrieve all cards for the specified deck. | `verifyToken` |
+| `POST` | `/:deckId/cards` | Create a new card in the specified deck. | `verifyToken` |
+| `PUT` | `/:deckId/cards/:cardId` | Update a specific card. | `verifyToken` |
+| `DELETE` | `/:deckId/cards/:cardId` | Delete a specific card. | `verifyToken` |
 
 ## 📚 API Documentation (Swagger)
 
+The full, interactive API documentation is generated using Swagger UI.
+
 * **Live Docs:** [https://flash-card-app-api-production-d571.up.railway.app/api-docs/](https://flash-card-app-api-production-d571.up.railway.app/api-docs/)
-* **Local Docs:** `http://localhost:[PORT]/api-docs`.
+* **Local Docs:** Once the server is running, access the documentation at `http://localhost:[PORT]/api-docs`.
 
 ---
